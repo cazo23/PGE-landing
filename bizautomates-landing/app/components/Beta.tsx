@@ -24,11 +24,11 @@ export default function Beta() {
         <div className="text-center mb-12">
           <div className="inline-block px-4 py-2 bg-primary-500/10 border border-primary-500/30 rounded-full mb-6">
             <span className="text-primary-500 font-semibold">
-              LIMITED BETA PROGRAM
+              FOUNDERS LAUNCH PROGRAM
             </span>
           </div>
           <h2 className="section-title">
-            Join the <span className="gradient-text">Founder's Beta</span>
+            Join the <span className="gradient-text">Founders Launch Program</span>
           </h2>
           <p className="section-subtitle">
             We're accepting only 3 more SaaS founders this quarter
@@ -41,7 +41,7 @@ export default function Beta() {
             <div>
               <div className="mb-6">
                 <div className="text-gray-500 mb-2">
-                  Beta Program Investment
+                  Founders Launch Program Investment
                 </div>
                 <div className="flex items-baseline gap-2 mb-2">
                   <span className="text-5xl font-bold gradient-text">
@@ -103,7 +103,7 @@ export default function Beta() {
 
             {/* Right side - Why Join */}
             <div>
-              <h3 className="text-2xl font-bold mb-4">Why Join the Beta?</h3>
+              <h3 className="text-2xl font-bold mb-4">Why Join the Founders Launch Program?</h3>
               <div className="space-y-4 mb-6">
                 <div className="flex gap-3">
                   <div className="flex-shrink-0 w-8 h-8 bg-primary-500/10 rounded-full flex items-center justify-center">
@@ -114,7 +114,7 @@ export default function Beta() {
                       Lock in Founder Pricing
                     </div>
                     <p className="text-sm text-gray-500">
-                      Beta members never pay more, even when we raise prices
+                      Founding members never pay more, even when we raise prices
                       (which we will)
                     </p>
                   </div>
@@ -155,7 +155,7 @@ export default function Beta() {
                   $8,500
                 </div>
                 <div className="text-xs text-gray-500">
-                  After beta program closes (Est. Q1 2026)
+                  After Founders Launch Program closes (Est. Q1 2026)
                 </div>
               </div>
             </div>
@@ -176,7 +176,7 @@ export default function Beta() {
                 onClick={scrollToContact}
                 className="btn-primary whitespace-nowrap w-full md:w-auto"
               >
-                Claim Your Spot →
+                Apply for Early Access →
               </button>
             </div>
           </div>
@@ -189,7 +189,7 @@ export default function Beta() {
             <span className="text-primary-500 font-semibold">
               2 spots filled this week.
             </span>{" "}
-            Beta program closes when all 3 remaining spots are taken.
+            Founders Launch Program closes when all 3 remaining spots are taken.
           </p>
         </div>
       </div>

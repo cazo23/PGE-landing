@@ -6,7 +6,7 @@ export default function Footer() {
   const footerLinks = {
     Product: [
       { name: "How It Works", href: "#how-it-works" },
-      { name: "Pricing", href: "#beta" },
+      { name: "Pricing", href: "#beta" }, // Links to Founders Launch Program section
       { name: "Results", href: "#results" },
     ],
     Company: [

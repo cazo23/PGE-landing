@@ -120,7 +120,7 @@ export default function Hero() {
             <span className="text-primary-500 font-semibold">
               Only 3 spots left
             </span>{" "}
-            in our beta program this quarter
+            in our Founders Launch Program this quarter
           </p>
         </div>
       </div>
