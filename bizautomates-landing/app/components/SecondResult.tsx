@@ -19,7 +19,7 @@ export default function Results() {
         {/* Header */}
         <div className="text-center mb-16">
           <div className="inline-block px-4 py-2 bg-primary-500/10 border border-primary-500/30 rounded-full mb-6">
-            <span className="text-primary-500 font-semibold">RESULTS</span>
+            <span className="text-primary-500 font-semibold">GROWTH IN ACTION</span>
           </div>
           <h2 className="section-title">
             <span className="gradient-text">Predictable Pipeline.</span> Real
