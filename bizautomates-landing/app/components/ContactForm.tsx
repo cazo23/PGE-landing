@@ -1,6 +1,7 @@
 'use client'
 
-import { useState, FormEvent } from 'react'
+import { useState, FormEvent, useRef } from 'react'
+import { Turnstile } from '@marsidev/react-turnstile'
 
 interface FormData {
   name: string
@@ -8,6 +9,7 @@ interface FormData {
   company: string
   mrr: string
   message: string
+  honeypot: string // Hidden field to catch bots
 }
 
 interface FormErrors {
@@ -15,6 +17,8 @@ interface FormErrors {
   email?: string
   company?: string
   mrr?: string
+  captcha?: string
+  general?: string
 }
 
 export default function ContactForm() {
@@ -24,11 +28,14 @@ export default function ContactForm() {
     company: '',
     mrr: '',
     message: '',
+    honeypot: '', // Hidden honeypot field
   })
 
   const [errors, setErrors] = useState<FormErrors>({})
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isSubmitted, setIsSubmitted] = useState(false)
+  const [captchaToken, setCaptchaToken] = useState<string>('')
+  const turnstileRef = useRef<any>(null)
 
   const validateForm = (): boolean => {
     const newErrors: FormErrors = {}
@@ -51,6 +58,10 @@ export default function ContactForm() {
       newErrors.mrr = 'Please select your MRR range'
     }
 
+    if (!captchaToken) {
+      newErrors.captcha = 'Please complete the security check'
+    }
+
     setErrors(newErrors)
     return Object.keys(newErrors).length === 0
   }
@@ -63,33 +74,44 @@ export default function ContactForm() {
     }
 
     setIsSubmitting(true)
-
-    // Webhook URL - Replace with your Make.com or n8n webhook URL
-    const WEBHOOK_URL = process.env.NEXT_PUBLIC_WEBHOOK_URL || ''
+    setErrors({}) // Clear any previous errors
 
     try {
-      // If webhook URL is configured, send the data
-      if (WEBHOOK_URL) {
-        const response = await fetch(WEBHOOK_URL, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            ...formData,
-            timestamp: new Date().toISOString(),
-            source: 'BizAutomates Landing Page',
-          }),
-        })
+      // Submit to our secure API route
+      const response = await fetch('/api/contact', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          ...formData,
+          captchaToken,
+        }),
+      })
 
-        if (!response.ok) {
-          throw new Error('Webhook submission failed')
+      const data = await response.json()
+
+      if (!response.ok) {
+        // Handle specific error cases
+        if (response.status === 429) {
+          setErrors({
+            general: 'Too many requests. Please try again in 15 minutes.',
+          })
+        } else if (response.status === 400 && data.errors) {
+          // Server-side validation errors
+          setErrors(data.errors)
+        } else {
+          setErrors({
+            general: data.error || 'There was an error submitting the form. Please try again.',
+          })
         }
-      } else {
-        // Fallback: Just log to console if no webhook configured
-        console.log('Form submitted (no webhook configured):', formData)
+        // Reset captcha on error
+        turnstileRef.current?.reset()
+        setCaptchaToken('')
+        return
       }
 
+      // Success!
       setIsSubmitted(true)
 
       // Reset form
@@ -99,10 +121,17 @@ export default function ContactForm() {
         company: '',
         mrr: '',
         message: '',
+        honeypot: '',
       })
+      setCaptchaToken('')
     } catch (error) {
       console.error('Submission error:', error)
-      alert('There was an error submitting the form. Please try again.')
+      setErrors({
+        general: 'Network error. Please check your connection and try again.',
+      })
+      // Reset captcha on error
+      turnstileRef.current?.reset()
+      setCaptchaToken('')
     } finally {
       setIsSubmitting(false)
     }
@@ -251,6 +280,60 @@ export default function ContactForm() {
                 placeholder="What are your biggest sales challenges? What revenue goals are you targeting?"
               />
             </div>
+
+            {/* Honeypot field - hidden from real users, bots will fill it */}
+            <div className="hidden" aria-hidden="true">
+              <label htmlFor="honeypot">Leave this field empty</label>
+              <input
+                type="text"
+                id="honeypot"
+                name="honeypot"
+                value={formData.honeypot}
+                onChange={handleChange}
+                tabIndex={-1}
+                autoComplete="off"
+              />
+            </div>
+
+            {/* Cloudflare Turnstile Captcha */}
+            <div className="flex flex-col items-center">
+              <Turnstile
+                ref={turnstileRef}
+                siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || ''}
+                onSuccess={(token) => {
+                  setCaptchaToken(token)
+                  setErrors((prev) => ({ ...prev, captcha: undefined }))
+                }}
+                onError={() => {
+                  setCaptchaToken('')
+                  setErrors((prev) => ({
+                    ...prev,
+                    captcha: 'Security check failed. Please try again.',
+                  }))
+                }}
+                onExpire={() => {
+                  setCaptchaToken('')
+                  setErrors((prev) => ({
+                    ...prev,
+                    captcha: 'Security check expired. Please verify again.',
+                  }))
+                }}
+                options={{
+                  theme: 'dark',
+                  size: 'normal',
+                }}
+              />
+              {errors.captcha && (
+                <p className="text-red-500 text-sm mt-2">{errors.captcha}</p>
+              )}
+            </div>
+
+            {/* General error message */}
+            {errors.general && (
+              <div className="bg-red-500/10 border border-red-500/30 rounded-lg p-4">
+                <p className="text-red-500 text-sm">{errors.general}</p>
+              </div>
+            )}
 
             {/* Submit button */}
             <button
