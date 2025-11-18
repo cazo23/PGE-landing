@@ -58,9 +58,10 @@ export default function ContactForm() {
       newErrors.mrr = 'Please select your MRR range'
     }
 
-    if (!captchaToken) {
-      newErrors.captcha = 'Please complete the security check'
-    }
+    // Captcha is optional for now (will work when env var is configured)
+    // if (!captchaToken) {
+    //   newErrors.captcha = 'Please complete the security check'
+    // }
 
     setErrors(newErrors)
     return Object.keys(newErrors).length === 0
