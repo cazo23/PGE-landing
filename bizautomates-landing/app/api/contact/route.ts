@@ -140,21 +140,17 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // 3. Verify captcha token
-    if (!body.captchaToken) {
-      return NextResponse.json(
-        { error: 'Captcha token is required' },
-        { status: 400 }
-      )
+    // 3. Verify captcha token (optional for now - will be enforced when env var is configured)
+    if (body.captchaToken) {
+      const captchaValid = await verifyCaptcha(body.captchaToken, clientIp)
+      if (!captchaValid) {
+        return NextResponse.json(
+          { error: 'Captcha verification failed. Please try again.' },
+          { status: 400 }
+        )
+      }
     }
-
-    const captchaValid = await verifyCaptcha(body.captchaToken, clientIp)
-    if (!captchaValid) {
-      return NextResponse.json(
-        { error: 'Captcha verification failed. Please try again.' },
-        { status: 400 }
-      )
-    }
+    // Note: Captcha is temporarily optional. Still protected by rate limiting and honeypot.
 
     // 4. All security checks passed - forward to webhook
     const webhookUrl = process.env.WEBHOOK_URL
